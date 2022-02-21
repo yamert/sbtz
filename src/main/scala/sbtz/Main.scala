@@ -1,6 +1,6 @@
-package example
+package sbtz
 
-object Hello extends Greeting with App {
+object Main extends Greeting with App {
   println(greeting)
 }
 

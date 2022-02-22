@@ -7,7 +7,7 @@ import scala.util.Using
 
 class LoadedData(
   val header: Option[String],
-  val lines: IndexedSeq[String]
+  val lines: Seq[String]
 )
 
 object LoadedData {
@@ -22,8 +22,8 @@ object LoadedData {
         .map(_.trim)
         .filter(_.nonEmpty)
 
-      val header = if (cutHeader) iter.nextOption else None
-      val lines = iter.toIndexedSeq
+      val header = if (cutHeader) iter.nextOption() else None
+      val lines = iter.toSeq
 
       new LoadedData(header, lines)
     }.toEither

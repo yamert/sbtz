@@ -11,5 +11,7 @@ ThisBuild / fork             := true
 lazy val root = (project in file("."))
   .settings(
     name                            := "sbtz",
-    libraryDependencies += scalaTest % Test
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies ++= Dependencies.Cats.all,
+    libraryDependencies ++= Dependencies.Logging.all
   )

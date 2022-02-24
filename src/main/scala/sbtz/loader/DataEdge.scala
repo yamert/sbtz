@@ -4,6 +4,7 @@ import cats.data.Validated
 import cats.data.ValidatedNel
 import cats.implicits._
 
+// TODO: rename to Edge
 final case class DataEdge(
   source: String,
   target: String,

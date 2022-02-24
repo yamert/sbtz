@@ -1,6 +1,7 @@
 package sbtz.engine
 
 import com.typesafe.scalalogging.LazyLogging
+import sbtz.engine.EngineData.EdgesEnds
 import sbtz.loader.DataEdge
 import sbtz.loader.EdgeAttribute
 
@@ -33,13 +34,34 @@ class Engine private (private val core: EngineData) extends LazyLogging {
   private def verboseNodes(nodes: Set[Long]): Seq[DataEdge] = {
     logger.trace(s"verboseNodes: sources=$nodes")
 
-    nodes.toSeq.flatMap { nSource =>
+    nodes.toSeq.flatMap { source =>
       core
-        .sources(nSource)
+        .sources(source)
         .map { case (nTarget, attributes) =>
-          DataEdge(core.id2name(nSource), core.id2name(nTarget), attributes.map(a => EdgeAttribute(a.name, a.value)))
+          DataEdge(core.id2name(source), core.id2name(nTarget), attributes.map(a => EdgeAttribute(a.name, a.value)))
         }
     }
+  }
+
+  def upsertEdge(edge: DataEdge): Unit = {
+    val sourceNodeId = putName(edge.source)
+    val targetNodeId = putName(edge.target)
+
+    val targets = core.sources.getOrElseUpdate(sourceNodeId, EdgesEnds.empty)
+    core.sources.getOrElseUpdate(targetNodeId, EdgesEnds.empty)
+
+    targets.update(targetNodeId, edge.attributes)
+    core.sources.update(sourceNodeId, targets)
+  }
+
+  private def putName(name: String): Long = core.name2id.get(name) match {
+    case Some(nodeId) => nodeId
+    case None =>
+      val nodeId = core.id2name.keySet.max + 1L
+      logger.trace(s"putName: added node: ($name, $nodeId)")
+      core.id2name.update(nodeId, name)
+      core.name2id.update(name, nodeId)
+      nodeId
   }
 }
 
